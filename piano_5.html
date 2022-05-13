@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>JS Piano 1</title>
+</head>
+<body>
+<p>Y'know what? Let's just copy MDN's example synth keyboard. The goal of this
+page is to do away with the generate-from-list method and just give us two,
+nice octaves to play with.</p>
+
+<p>Goals with future pianos:</p>
+</li><li> Touch-friendly wider key buttons, with one octaves
+</li><li> Keyboard controls
+</li><li> Remapping for Dvorak?
+</li><li> Generate keyboard just from a list of tones
+</li><li> Make keys toggle by default (rather than hold-and-release)
+</li><li> Maybe just copy this? https://github.com/MaxLaumeister/ToneMatrixRedux
+</li></ol>
+
+<hr>
+
+
+<div class="container">
+  <div class="keyboard"></div>
+</div>
+
+<div class="settingsBar">
+  <div class="left">
+    <span>Volume: </span>
+    <input type="range" min="0.0" max="1.0" step="0.01"
+        value="1.0" list="volumes" name="volume">
+    <datalist id="volumes">
+      <option value="0.0" label="Mute">
+      <option value="1.0" label="100%">
+    </datalist>
+  </div>
+  <div class="right">
+    <span>Current waveform: </span>
+    <select name="waveform">
+      <option value="sine">Sine</option>
+      <option value="square" selected>Square</option>
+      <option value="sawtooth">Sawtooth</option>
+      <option value="triangle">Triangle</option>
+    </select>
+  </div>
+</div>
+
+
+<script>
+// audioContext references the global AudioContext / webkitAudioContext
+let audioContext = new (window.AudioContext || window.webkitAudioContext)();
+// oscList will be populated with playing oscillators
+let oscList = [];
+// mainGainNode will contain a GainNode which all oscillators connect to, allowing volume control.
+let mainGainNode = null;
+// keyboard will contain the keys
+let keyboard = document.querySelector(".keyboard");
+// wavePicker will contain the waveform used for notes
+let wavePicker = document.querySelector("select[name='waveform']");
+// volumeControl will control the volume, i.e. a slider
+let volumeControl = document.querySelector("input[name='volume']");
+
+// more globals:
+// noteFreq will be an array-of-arrays, a list of octaves, each is a list of notes
+let noteFreq = null;
+// customWaveform will be a PeriodicWave
+let customWaveform = null;
+// sineTerms and cosineTerms will be used to store data generating each waveform...
+let sineTerms = null;
+let cosineTerms = null;
+
+
+function playTone(freq) {
+  let osc = audioContext.createOscillator();
+  osc.connect(mainGainNode);
+
+  let type = wavePicker.options[wavePicker.selectedIndex].value;
+
+  if (type == "custom") {
+    osc.setPeriodicWave(customWaveform);
+  } else {
+    osc.type = type;
+  }
+
+  osc.frequency.value = freq;
+  osc.start();
+
+  return osc;
+}
+
+
+function notePressed(event) {
+    let dataset = event.target.dataset;
+  if (event.buttons & 1) {
+
+    if (!dataset["pressed"]) {
+      let octave = +dataset["octave"];
+      oscList[octave][dataset["note"]] = playTone(dataset["frequency"]);
+      dataset["pressed"] = "yes";
+    }
+  }
+}
+
+function noteReleased(event) {
+  let dataset = event.target.dataset;
+
+  if (dataset && dataset["pressed"]) {
+    let octave = +dataset["octave"];
+    oscList[octave][dataset["note"]].stop();
+    delete oscList[octave][dataset["note"]];
+    delete dataset["pressed"];
+  }
+}
+
+// called once for each key that we want to present in the virtual keyboard.
+// It creates the elements that comprise the key and its label,
+//  adds some data attributes to the element for later use,
+//  and assigns event handlers for the events we care about.
+function createKey(note, octave, freq) {
+  let keyElement = document.createElement("div");
+  let labelElement = document.createElement("div");
+
+  keyElement.className = "key";
+  keyElement.dataset["octave"] = octave;
+  keyElement.dataset["note"] = note;
+  keyElement.dataset["frequency"] = freq;
+
+  labelElement.innerHTML = note + "<sub>" + octave + "</sub>";
+  keyElement.appendChild(labelElement);
+
+  keyElement.addEventListener("mousedown", notePressed, false);
+  keyElement.addEventListener("mouseup", noteReleased, false);
+  keyElement.addEventListener("mouseover", notePressed, false);
+  keyElement.addEventListener("mouseleave", noteReleased, false);
+  keyElement.addEventListener("touchstart", notePressed, false);
+  keyElement.addEventListener("touchmove", notePressed, false);
+  keyElement.addEventListener("touchend", noteReleased, false);
+
+  return keyElement;
+}
+
+function changeVolume(event) {
+  mainGainNode.gain.value = volumeControl.value
+}
+
+
+
+
+function createNoteTable() {
+ // Generates the list of waveforms.
+ // Modified to contain just three octaves
+  let noteFreq = [];
+  for (let i=0; i<3; i++) {
+    noteFreq[i] = [];
+  }
+  noteFreq[0]["C"] = 130.812782650299317;
+  noteFreq[0]["C#"] = 138.591315488436048;
+  noteFreq[0]["D"] = 146.832383958703780;
+  noteFreq[0]["D#"] = 155.563491861040455;
+  noteFreq[0]["E"] = 164.813778456434964;
+  noteFreq[0]["F"] = 174.614115716501942;
+  noteFreq[0]["F#"] = 184.997211355817199;
+  noteFreq[0]["G"] = 195.997717990874647;
+  noteFreq[0]["G#"] = 207.652348789972569;
+  noteFreq[0]["A"] = 220.000000000000000;
+  noteFreq[0]["A#"] = 233.081880759044958;
+  noteFreq[0]["B"] = 246.941650628062055;
+
+  noteFreq[1]["C"] = 261.625565300598634;
+  noteFreq[1]["C#"] = 277.182630976872096;
+  noteFreq[1]["D"] = 293.664767917407560;
+  noteFreq[1]["D#"] = 311.126983722080910;
+  noteFreq[1]["E"] = 329.627556912869929;
+  noteFreq[1]["F"] = 349.228231433003884;
+  noteFreq[1]["F#"] = 369.994422711634398;
+  noteFreq[1]["G"] = 391.995435981749294;
+  noteFreq[1]["G#"] = 415.304697579945138;
+  noteFreq[1]["A"] = 440.000000000000000;
+  noteFreq[1]["A#"] = 466.163761518089916;
+  noteFreq[1]["B"] = 493.883301256124111;
+
+  noteFreq[2]["C"] = 523.251130601197269;
+  noteFreq[2]["C#"] = 554.365261953744192;
+  noteFreq[2]["D"] = 587.329535834815120;
+  noteFreq[2]["D#"] = 622.253967444161821;
+  noteFreq[2]["E"] = 659.255113825739859;
+  noteFreq[2]["F"] = 698.456462866007768;
+  noteFreq[2]["F#"] = 739.988845423268797;
+  noteFreq[2]["G"] = 783.990871963498588;
+  noteFreq[2]["G#"] = 830.609395159890277;
+  noteFreq[2]["A"] = 880.000000000000000;
+  noteFreq[2]["A#"] = 932.327523036179832;
+  noteFreq[2]["B"] = 987.766602512248223;
+  return noteFreq;
+}
+
+// setup builds the keyboard, and prepares to play music
+function setup() {
+  // populate the global noteFreq, mapping note names+octaves to frequencies
+  noteFreq = createNoteTable();
+
+  // Add to our volumeControl an 'event Listener'.
+  //    Calls on event type 'change' to invoke 'changeVolume'
+  //    Which is a method that sets mainGainNode.gain.value = volumeControl.value
+  //    And 'false' to 'useCapture'. 
+  volumeControl.addEventListener("change", changeVolume, false);
+
+  // Now we actually create the mainGainNode referenced prior
+  mainGainNode = audioContext.createGain();
+  mainGainNode.connect(audioContext.destination);
+  mainGainNode.gain.value = volumeControl.value;
+
+  // Create the keys; skip any that are sharp or flat; for
+  // our purposes we don't need them. Each octave is inserted
+  // into a <div> of class "octave".
+  noteFreq.forEach(function(keys, idx) {
+    let keyList = Object.entries(keys);
+    let octaveElem = document.createElement("div");
+    octaveElem.className = "octave";
+
+    // build each octave
+    keyList.forEach(function(key) {
+      if (key[0].length == 1) { // i.e. string with only one character. 
+        octaveElem.appendChild(createKey(key[0], idx, key[1]));
+      }
+    });
+    
+    // Append each octave to the keyboard.
+    keyboard.appendChild(octaveElem);
+  });
+
+  // Focus on middle 'B'.
+  document.querySelector("div[data-note='B'][data-octave='2']").scrollIntoView(false);
+
+  // Now, create waveforms.
+  sineTerms = new Float32Array([0, 0, 1, 0, 1]);
+  cosineTerms = new Float32Array(sineTerms.length);
+  customWaveform = audioContext.createPeriodicWave(cosineTerms, sineTerms);
+
+  // Initialize oscillator list so it can receive identifying information (???)
+  for (i=0; i<3; i++) {
+      oscList[i] = {};
+  }
+}
+
+setup();
+
+
+</script>
+</body>
+</html>
+
+<style type="text/css">
+    body {
+      padding: 0;
+      margin: 0;
+    }
+
+    svg:not(:root) {
+      display: block;
+    }
+
+    .playable-code {
+      background-color: #f4f7f8;
+      border: none;
+      border-left: 6px solid #558abb;
+      border-width: medium medium medium 6px;
+      color: #4d4e53;
+      height: 100px;
+      width: 90%;
+      padding: 10px 10px 0;
+    }
+
+    .playable-canvas {
+      border: 1px solid #4d4e53;
+      border-radius: 2px;
+    }
+
+    .playable-buttons {
+      text-align: right;
+      width: 90%;
+      padding: 5px 10px 5px 26px;
+    }
+</style>
+        
+<style type="text/css">
+.container {
+  overflow-x: scroll;
+  overflow-y: hidden;
+  width: 800px;
+  height: 110px;
+  white-space: nowrap;
+  margin: 10px;
+}
+
+.keyboard {
+  width: auto;
+  padding: 0;
+  margin: 0;
+}
+
+
+.key {
+  cursor: pointer;
+  font: 16px "Open Sans", "Lucida Grande", "Arial", sans-serif;
+  border: 1px solid black;
+  border-radius: 3px;
+  width: 25px;
+  height: 80px;
+  text-align: center;
+  box-shadow: 2px 2px darkgray;
+  display: inline-block;
+  position: relative;
+  margin-right: 3px;
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+}
+
+.key div {
+  position: absolute;
+  bottom: 0;
+  text-align: center;
+  width: 100%;
+  pointer-events: none;
+}
+
+.key div sub {
+  font-size: 10px;
+  pointer-events: none;
+}
+
+.key:hover {
+  background-color: #eef;
+}
+
+.key:active {
+  background-color: #000;
+  color: #fff;
+}
+
+.octave {
+  display: inline-block;
+  padding: 0 6px 0 0;
+}
+
+.settingsBar {
+  padding-top: 8px;
+  font: 14px "Open Sans", "Lucida Grande", "Arial", sans-serif;
+  position: relative;
+  vertical-align: middle;
+  width: 100%;
+  height: 30px;
+}
+
+.left {
+  width: 50%;
+  position: absolute;
+  left: 0;
+  display: table-cell;
+  vertical-align: middle;
+}
+
+.left span, .left input {
+  vertical-align: middle;
+}
+
+.right {
+  width: 50%;
+  position: absolute;
+  right: 0;
+  display: table-cell;
+  vertical-align: middle;
+}
+
+.right span {
+  vertical-align: middle;
+}
+
+.right input {
+  vertical-align: baseline;
+}
+</style>

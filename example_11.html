@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<!-- TODO! Turn off CORS so this works on Firefox. -->
+<title>SVG Example</title>
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+
+
+
+<script type="module">
+  // Parse CSV data
+  import { town06_csv } from './raw_spawn_data.js';
+  import { parse } from './escsv.js';
+  var town06_spawnpoints = parse(town06_csv);
+
+  //// Create SVG programatically so that polygons render!
+  var container = document.createElement("div");
+  var svg = document.createElementNS("http://www.w3.org/2000/svg", 'svg');
+  svg.setAttribute("width", "700");
+  svg.setAttribute("height", "700");
+  svg.setAttribute("id", "carmap");
+  svg.setAttribute("viewbox", "0 0 700 700");
+
+  // define defs, polygon
+  var carmap_defs = document.createElementNS("http://www.w3.org/2000/svg", 'defs');
+  var carmap_defs_polygon = document.createElementNS("http://www.w3.org/2000/svg", 'polygon');
+  carmap_defs_polygon.setAttribute("id", "car")
+  carmap_defs_polygon.setAttribute("class", "car")
+  carmap_defs_polygon.setAttribute("points", "16,0 -16,-16 -8,0 -16,16")
+  // add defs, polygon to the svg
+  carmap_defs.appendChild(carmap_defs_polygon);
+  svg.appendChild(carmap_defs);
+
+  // Create the groups too...
+  var map_g = document.createElementNS("http://www.w3.org/2000/svg", 'g');
+  map_g.setAttribute("id","entire-map");
+  var cars_g = document.createElementNS("http://www.w3.org/2000/svg", 'g');
+  cars_g.setAttribute("id","cars");
+  var grid_g = document.createElementNS("http://www.w3.org/2000/svg", 'g');
+  grid_g.setAttribute("id","grid");
+  grid_g.setAttribute("style","stroke:#94b0c2;");
+
+  // Now add lines to the grid
+  for (let ii = 0; ii < 20; ii++) {
+    var h_line = document.createElementNS("http://www.w3.org/2000/svg", 'line');
+    h_line.setAttribute("x1", "0");
+    h_line.setAttribute("x2", "1000");
+    h_line.setAttribute("y1", `${ii*50}`);
+    h_line.setAttribute("y2", `${ii*50}`);
+
+    var v_line = document.createElementNS("http://www.w3.org/2000/svg", 'line');
+    v_line.setAttribute("y1", "0");
+    v_line.setAttribute("y2", "1000");
+    v_line.setAttribute("x1", `${ii*50}`);
+    v_line.setAttribute("x2", `${ii*50}`);
+
+    grid_g.appendChild(h_line);
+    grid_g.appendChild(v_line);
+  }
+
+  // Now add these groups together, and then to the SVG
+  map_g.appendChild(cars_g);
+  map_g.appendChild(grid_g);
+  svg.appendChild(map_g);
+  // and finally, the svg to the doc
+  container.appendChild(svg);
+  document.body.appendChild(container);
+
+  function shades(self, color) {
+    return function () {self.style.fill = color}
+  }
+
+  function dotext(self, data) {
+    return function () { navigator.clipboard.writeText(data); }
+  }
+
+  // 1. Load CSV
+  var sp = parse(town06_csv);
+
+  // 2. Add cars per CSV
+  
+  //for (let ii = 0; ii < sp.length; ii++) {
+  for (let ii = 1; ii < 100; ii++) {
+    // Create a group to hold our car
+    var car = document.createElementNS("http://www.w3.org/2000/svg", 'g');
+    car.setAttribute("id",`car${ii}`);
+    car.setAttribute("transform",`translate(${sp[ii][0]},${sp[ii][1]}) rotate(${sp[ii][4]}) scale(.5)`);
+
+    // Add the nested <use>
+    var use_car = document.createElementNS("http://www.w3.org/2000/svg", 'use');
+    use_car.setAttribute("href", "#car");
+
+    // Add to DOM
+    car.appendChild(use_car);
+    cars_g.appendChild(car);
+    
+    // TODO add listeners, data
+    /*
+    car.addEventListener('mouseover',  shades(car, '#3b5dc9'))
+    car.addEventListener('mouseleave', shades(car, '#1a1c2c'))
+    car.addEventListener('mousedown',  shades(car, '#ef7d57'))
+    car.addEventListener('mouseup',    shades(car, '#3b5dc9'))
+    car.addEventListener('click',      dotext(car, coords[ii])) // todo
+    */
+  }
+  
+
+  // 3. The rest
+  /*
+  var coords = [
+    'dummytext1',
+    'dummytext2'
+  ]
+
+  for (let ii = 0; ii < cars.children.length; ii++) {
+    let car = cars.children[ii];
+    car.addEventListener('mouseover',  shades(car, '#3b5dc9'))
+    car.addEventListener('mouseleave', shades(car, '#1a1c2c'))
+    car.addEventListener('mousedown',  shades(car, '#ef7d57'))
+    car.addEventListener('mouseup',    shades(car, '#3b5dc9'))
+    car.addEventListener('click',      dotext(car, coords[ii])) // todo
+  }
+  */
+
+  /* TODO:
+   * 1. Place cars per CSV. See http://github.com/evanplaice/jquery-csv/
+   * 2. Copy data per CSV
+   * 3. Add road data  
+   * 4. Cleaner export-spawnpoints script.
+   *    Export all the points and make all the maps.
+   * 5. Add option to choose a CSV?
+
+  // also see:
+  // http://stackoverflow.com/questions/2753732/  to access elements async
+  */
+</script>
+
+</html>

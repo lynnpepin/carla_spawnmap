@@ -64,7 +64,7 @@ export function parse (csv, options, reviver = v => v) {
             break
           default:
             state = 4
-            throw Error(`uhhh CSVError: Illegal state [row:${ctx.row}, col:${ctx.col}]`)
+            throw Error(`CSVError: Illegal state [row:${ctx.row}, col:${ctx.col}]`)
         }
         break
       case 3: // delimited input

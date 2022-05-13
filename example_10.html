@@ -10,7 +10,6 @@
   </defs>
 
   <g id="entire-map">
-    
     <g id="grid" style="stroke:#94b0c2;">
       <line x1="0" y1="0" x2="200" y2="0"></line>
       <line x1="0" y1="50" x2="200" y2="50" ></line>
@@ -64,17 +63,22 @@
 
   //for (let ii = 0; ii < sp.length; ii++) {
   for (let ii = 1; ii < 100; ii++) {
-    var car = document.createElementNS("https://www.w3.org/2000/svg", 'g');
-    // TODO: Put x, y, rotation into this
+    var car = document.createElementNS("http://www.w3.org/2000/svg", 'g');
+
+    // Set the group attributes
     car.setAttribute("id",`car${ii}`);
     car.setAttribute("transform",`translate(${sp[ii][0]},${sp[ii][1]}) rotate(${sp[ii][4]}) scale(.5)`);
 
+    // Add the nested <use>
     var use_car = document.createElementNS("https://www.w3.org/2000/svg", 'use');
+    
     use_car.setAttribute("href", "#car");
+
+    // Add to DOM
     car.appendChild(use_car);
     cars.appendChild(car);
-
-
+    
+    // TODO add listeners, data
     /*
     car.addEventListener('mouseover',  shades(car, '#3b5dc9'))
     car.addEventListener('mouseleave', shades(car, '#1a1c2c'))
@@ -83,7 +87,7 @@
     car.addEventListener('click',      dotext(car, coords[ii])) // todo
     */
   }
-
+  
 
   // 3. The rest
   /*

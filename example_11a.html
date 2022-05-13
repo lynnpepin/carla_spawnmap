@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<body></body>
+<script>
+  // Parse CSV data
+
+  //// Create SVG programatically so that polygons render!
+  var container = document.createElement("div");
+  var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("width", "700");
+  svg.setAttribute("height", "700");
+  
+  svg.setAttribute("id", "carmap");
+  svg.setAttribute("viewbox", "0 0 700 700");
+
+  // define defs, polygon
+  var defs = document.createElementNS("http://www.w3.org/2000/svg", 'defs');
+  var defs_polygon = document.createElementNS("http://www.w3.org/2000/svg", 'polygon');
+  defs_polygon.setAttribute("id", "car");
+  defs_polygon.setAttribute("class", "car");
+  defs_polygon.setAttribute("points", "16,0 -16,-16 -8,0 -16,16");
+  // add defs, polygon to the svg
+  defs.appendChild(defs_polygon);
+  svg.appendChild(defs);
+
+  // Create the groups too...
+  var map_g = document.createElementNS("http://www.w3.org/2000/svg", 'g');
+  map_g.setAttribute("id","entire-map");
+  var cars_g = document.createElementNS("http://www.w3.org/2000/svg", 'g');
+  cars_g.setAttribute("id","cars");
+  var grid_g = document.createElementNS("http://www.w3.org/2000/svg", 'g');
+  grid_g.setAttribute("id","grid");
+  grid_g.setAttribute("style","stroke:#94b0c2;");
+
+  // Now add lines to the grid
+  for (let ii = 0; ii < 20; ii++) {
+    var h_line = document.createElementNS("http://www.w3.org/2000/svg", 'line');
+    h_line.setAttribute("x1", "0");
+    h_line.setAttribute("x2", "2000");
+    h_line.setAttribute("y1", "${ii*100}");
+    h_line.setAttribute("y2", `${ii*100}`);
+
+    var v_line = document.createElementNS("http://www.w3.org/2000/svg", 'line');
+    v_line.setAttribute("y1", "0");
+    v_line.setAttribute("y2", "2000");
+    v_line.setAttribute("x1", "${ii*100}");
+    v_line.setAttribute("x2", `${ii*100}`);
+
+    grid_g.appendChild(h_line);
+    grid_g.appendChild(v_line);
+  }
+
+  // Now add these groups together, and then to the SVG
+  map_g.appendChild(cars_g);
+  map_g.appendChild(grid_g);
+  svg.appendChild(map_g);
+  
+  // and finally, the svg to the doc
+
+  var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  circle.setAttribute("cx", "20");
+  circle.setAttribute("cy", "20");
+  circle.setAttribute("r", "15");
+  svg.appendChild(circle);
+  container.appendChild(svg);
+  document.body.appendChild(container);
+</script>
+
+</html>

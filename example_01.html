@@ -8,7 +8,6 @@
       <style>
         .cararrow {
           font: bold 32px sans-serif;
-          transform: translateX(-16px) translateY(10px);
          }
       </style>
       <circle cx='100' cy='100' r='10'></circle>
@@ -18,9 +17,19 @@
       <line x1="50" y1="100" x2="100" y2="100" stroke="black"></line>
       <line x1="100" y1="50" x2="100" y2="100" stroke="black"></line>
       
-      <text x="50" y="100" class="cararrow">➣</text>
+      <line x1="0" y1="150" x2="150" y2="150" stroke="black"></line>
+      <line x1="50" y1="50" x2="50" y2="150" stroke="black"></line>
       
-      <text x="50" y="150" class="cararrow" rotate="-45">➣</text>
+      <g transform="translate(-16, 10)">
+        <text x="50" y="100" class="cararrow">➣</text>
+      </g>
+      
+      <!-- x,y at 50,150. -->
+      <g transform="translate(50, 150)">
+        <g transform="translate(-16, -10) scale(1, -1) rotate(45)">
+          <text class="cararrow">➣</text>
+        </g>
+      </g>
     </g>
     <!-- ➤ ➣ -->
 </svg>
@@ -29,4 +38,7 @@ We have some circles and lines on the page.
 
 We center an emoji ➤ at (50,100). It works by setting x=50, y=100, and correcting for
 the alignment using CSS `transform:`.
+
+The text just won't work without some wacky math. I need to create a new element, centered at 0,0
 </html>
+          <!-- transform: translateX(-16px) translateY(10px); -->

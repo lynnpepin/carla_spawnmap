@@ -38,14 +38,23 @@
   var carmap = document.getElementById("carmap");
 
   var car1 = document.getElementById("car1");
+
+  function color_on_event(self, color) {
+    return function () {
+      console.log("abc");
+      self.style.fill = color;
+    }
+  }
   car1.addEventListener('click', function(){
     navigator.clipboard.writeText("[1, 2, 3]");
   })
-  car1.addEventListener('mouseover', function(){
-    car1.style.fill = '#41a6f6';
-    console.log(car1.children[0]);
-    console.log("Over");
-  })
+  car1.addEventListener(
+    'mouseover',
+    //aaa
+    color_on_event(car1, '#3b5dc9')
+  );
+
+  // todo: Reuse from here down
   car1.addEventListener('mouseleave', function(){
     car1.style.fill = '#1a1c2c';
     console.log(car1.children[0]);
@@ -57,7 +66,7 @@
     console.log("Over");
   })
   car1.addEventListener('mouseup', function(){
-    car1.style.fill = '#41a6f6';
+    car1.style.fill = '#3b5dc9';
     console.log(car1.children[0]);
     console.log("Over");
   })

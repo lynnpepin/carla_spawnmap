@@ -9,7 +9,6 @@
   // Parse CSV data
   import { town06_csv } from './raw_spawn_data.js';
   import { parse } from './escsv.js';
-  var town06_spawnpoints = parse(town06_csv);
 
   //// Create SVG programatically so that polygons render!
   var container = document.createElement("div");
@@ -20,14 +19,14 @@
   svg.setAttribute("viewbox", "0 0 700 700");
 
   // define defs, polygon
-  var carmap_defs = document.createElementNS("http://www.w3.org/2000/svg", 'defs');
-  var carmap_defs_polygon = document.createElementNS("http://www.w3.org/2000/svg", 'polygon');
-  carmap_defs_polygon.setAttribute("id", "car")
-  carmap_defs_polygon.setAttribute("class", "car")
-  carmap_defs_polygon.setAttribute("points", "16,0 -16,-16 -8,0 -16,16")
+  var defs = document.createElementNS("http://www.w3.org/2000/svg", 'defs');
+  var defs_polygon = document.createElementNS("http://www.w3.org/2000/svg", 'polygon');
+  defs_polygon.setAttribute("id", "car");
+  defs_polygon.setAttribute("class", "car");
+  defs_polygon.setAttribute("points", "16,0 -16,-8 -24,0 -16,8");
   // add defs, polygon to the svg
-  carmap_defs.appendChild(carmap_defs_polygon);
-  svg.appendChild(carmap_defs);
+  defs.appendChild(defs_polygon);
+  svg.appendChild(defs);
 
   // Create the groups too...
   var map_g = document.createElementNS("http://www.w3.org/2000/svg", 'g');
@@ -64,6 +63,7 @@
   container.appendChild(svg);
   document.body.appendChild(container);
 
+  //// Functions used with listeners
   function shades(self, color) {
     return function () {self.style.fill = color}
   }
@@ -72,61 +72,60 @@
     return function () { navigator.clipboard.writeText(data); }
   }
 
+  //// Add cars
   // 1. Load CSV
   var sp = parse(town06_csv);
-
-  // 2. Add cars per CSV
   
-  //for (let ii = 0; ii < sp.length; ii++) {
-  for (let ii = 1; ii < 100; ii++) {
+  // 2. Add cars
+  for (let ii = 0; ii < sp.length; ii++) {
     // Create a group to hold our car
     var car = document.createElementNS("http://www.w3.org/2000/svg", 'g');
-    car.setAttribute("id",`car${ii}`);
-    car.setAttribute("transform",`translate(${sp[ii][0]},${sp[ii][1]}) rotate(${sp[ii][4]}) scale(.5)`);
 
-    // Add the nested <use>
+    // get values out
+
+    var x = sp[ii][0]
+    var y = sp[ii][1]
+    var z = sp[ii][2]
+    var pitch = sp[ii][3]
+    var yaw = sp[ii][4]
+    var roll = sp[ii][5]
+
+    car.setAttribute("id",`car${ii}`);
+    car.setAttribute(
+      "transform",`
+      translate(${x},${y}) rotate(${yaw}) scale(.5)`
+    );
+    // add nested 'use'
     var use_car = document.createElementNS("http://www.w3.org/2000/svg", 'use');
     use_car.setAttribute("href", "#car");
-
     // Add to DOM
     car.appendChild(use_car);
     cars_g.appendChild(car);
     
     // TODO add listeners, data
-    /*
     car.addEventListener('mouseover',  shades(car, '#3b5dc9'))
     car.addEventListener('mouseleave', shades(car, '#1a1c2c'))
     car.addEventListener('mousedown',  shades(car, '#ef7d57'))
     car.addEventListener('mouseup',    shades(car, '#3b5dc9'))
-    car.addEventListener('click',      dotext(car, coords[ii])) // todo
-    */
+
+    // set up data string
+    x = parseFloat(x).toFixed(3);
+    y = parseFloat(y).toFixed(3);
+    z = parseFloat(z).toFixed(3);
+    pitch = parseFloat(pitch).toFixed(3);
+    yaw = parseFloat(yaw).toFixed(3);
+    roll = parseFloat(roll).toFixed(3);
+    var carsdata = `[${x}, ${y}, ${z}, ${pitch}, ${yaw}, ${roll}]`;
+    car.addEventListener('click',      dotext(car, carsdata));
   }
   
 
-  // 3. The rest
-  /*
-  var coords = [
-    'dummytext1',
-    'dummytext2'
-  ]
-
-  for (let ii = 0; ii < cars.children.length; ii++) {
-    let car = cars.children[ii];
-    car.addEventListener('mouseover',  shades(car, '#3b5dc9'))
-    car.addEventListener('mouseleave', shades(car, '#1a1c2c'))
-    car.addEventListener('mousedown',  shades(car, '#ef7d57'))
-    car.addEventListener('mouseup',    shades(car, '#3b5dc9'))
-    car.addEventListener('click',      dotext(car, coords[ii])) // todo
-  }
-  */
-
   /* TODO:
-   * 1. Place cars per CSV. See http://github.com/evanplaice/jquery-csv/
-   * 2. Copy data per CSV
-   * 3. Add road data  
-   * 4. Cleaner export-spawnpoints script.
-   *    Export all the points and make all the maps.
-   * 5. Add option to choose a CSV?
+   * 1. Add road data
+   * 2. Translate canvas
+   * 3. Add all towns (and cleaner python script). Add option to choose town.
+   * 4. Cleaner export-spawnpoints script..
+
 
   // also see:
   // http://stackoverflow.com/questions/2753732/  to access elements async

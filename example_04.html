@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<title>SVG Example</title>
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<svg width="300" height="300" viewBox="0 0 300 300" zoomAndPan="disable"
+     xmlns="http://www.w3.org/2000/svg"  xmlns:xlink="http://www.w3.org/1999/xlink"
+     id="carmap">
+  <defs>
+    <polygon id="car" class="car" points="16,0 -16,-16 -8,0 -16,16"/>
+  </defs>
+  <g id="entire-map">
+    
+    <g id="grid" style="stroke:#94b0c2;">
+      <line x1="0" y1="0" x2="200" y2="0"></line>
+      <line x1="0" y1="50" x2="200" y2="50" ></line>
+      <line x1="0" y1="100" x2="200" y2="100"></line>
+      <line x1="0" y1="150" x2="200" y2="150"></line>
+      <line x1="0" y1="200" x2="200" y2="200"></line>
+      
+      <line x1="0" y1="0" x2="0" y2="200"></line>
+      <line x1="50" y1="0" x2="50" y2="200" ></line>
+      <line x1="100" y1="0" x2="100" y2="200"></line>
+      <line x1="150" y1="0" x2="150" y2="200"></line>
+      <line x1="200" y1="0" x2="200" y2="200"></line>
+    </g>
+
+    <g id="cars">
+      <g id="car1" transform="translate(50,100) rotate(45) scale(.5)">
+        <use href="#car">
+      </g>
+      
+      <g id="car2" transform="translate(100,100) rotate(0) scale(.5)">
+        <use href="#car">
+      </g>
+    </g>
+  <!-- ➤ ➣ -->
+</svg>
+
+<script>
+  var carmap = document.getElementById("carmap");
+
+  function shades(self, color) {
+    return function () {self.style.fill = color}
+  }
+
+  function dotext(self, data) {
+    return function () { navigator.clipboard.writeText(data); }
+  }
+
+  var cars = document.getElementById("cars");
+
+  var coords = [
+    'dummytext1',
+    'dummytext2'
+  ]
+
+  for (let ii = 0; ii < cars.children.length; ii++) {
+    let car = cars.children[ii];
+    car.addEventListener('mouseover',  shades(car, '#3b5dc9'))
+    car.addEventListener('mouseleave', shades(car, '#1a1c2c'))
+    car.addEventListener('mousedown',  shades(car, '#ef7d57'))
+    car.addEventListener('mouseup',    shades(car, '#3b5dc9'))
+    car.addEventListener('click',      dotext(car, coords[ii])) // todo
+  }
+
+  /* TODO:
+   * 1. Place cars per CSV
+   * 2. Copy data per CSV
+   * 3. Add road data  
+
+  // also see:
+  // https://stackoverflow.com/questions/2753732/  to access elements async
+</script>
+
+<br>
+Now we want to add JavaScript so that we can easily copy-and-paste data associated with a polygon.
+
+Let's do:
+
+1. Copy text on car click
+2. Change color on car hover, click
+3. Import data
+
+<br>
+
+<input type="text">
+
+</html>

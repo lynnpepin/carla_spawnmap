@@ -7,27 +7,31 @@
   <defs>
     <polygon id="car" class="car" points="16,0 -16,-16 -8,0 -16,16"/>
   </defs>
-  <g>
+  <g id="entire-map">
     
     <!-- grid -->
-    <line x1="0" y1="0" x2="200" y2="0" stroke="grey"></line>
-    <line x1="0" y1="50" x2="200" y2="50" stroke="grey"></line>
-    <line x1="0" y1="100" x2="200" y2="100" stroke="grey"></line>
-    <line x1="0" y1="150" x2="200" y2="150" stroke="grey"></line>
-    <line x1="0" y1="200" x2="200" y2="200" stroke="grey"></line>
-    
-    <line x1="0" y1="0" x2="0" y2="200" stroke="grey"></line>
-    <line x1="50" y1="0" x2="50" y2="200" stroke="grey"></line>
-    <line x1="100" y1="0" x2="100" y2="200" stroke="grey"></line>
-    <line x1="150" y1="0" x2="150" y2="200" stroke="grey"></line>
-    <line x1="200" y1="0" x2="200" y2="200" stroke="grey"></line>
-
-    <g id="car1" transform="translate(50,100) rotate(45) scale(.5)">
-        <use href="#car">
+    <g id="grid" style="color:#ff0000; fill:#00ff00;">
+      <line x1="0" y1="0" x2="200" y2="0" stroke="grey"></line>
+      <line x1="0" y1="50" x2="200" y2="50" stroke="grey"></line>
+      <line x1="0" y1="100" x2="200" y2="100" stroke="grey"></line>
+      <line x1="0" y1="150" x2="200" y2="150" stroke="grey"></line>
+      <line x1="0" y1="200" x2="200" y2="200" stroke="grey"></line>
+      
+      <line x1="0" y1="0" x2="0" y2="200" stroke="grey"></line>
+      <line x1="50" y1="0" x2="50" y2="200" stroke="grey"></line>
+      <line x1="100" y1="0" x2="100" y2="200" stroke="grey"></line>
+      <line x1="150" y1="0" x2="150" y2="200" stroke="grey"></line>
+      <line x1="200" y1="0" x2="200" y2="200" stroke="grey"></line>
     </g>
-    
-    <g id="car2" transform="translate(100,100) rotate(0) scale(.5)">
+
+    <g id="cars">
+      <g id="car1" transform="translate(50,100) rotate(45) scale(.5)">
         <use href="#car">
+      </g>
+      
+      <g id="car2" transform="translate(100,100) rotate(0) scale(.5)">
+        <use href="#car">
+      </g>
     </g>
     
   </g>

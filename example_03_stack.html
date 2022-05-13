@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<svg width="300" height="300" viewBox="0 0 300 300" zoomAndPan="disable"
+     xmlns="http://www.w3.org/2000/svg"  xmlns:xlink="http://www.w3.org/1999/xlink"
+     id="carmap">
+  <defs>
+    <polygon id="car" class="car" points="16,0 -16,-16 -8,0 -16,16"/>
+  </defs>
+  <style>
+    #car {
+      fill:#800000;
+    }
+  </style>
+  <g>
+    <g id="car1" transform="translate(50,100) rotate(45) scale(.5)">
+        <use href="#car">
+    </g>
+  </g>
+</svg>
+
+<script>
+  var carmap = document.getElementById("carmap");
+  var car1 = document.getElementById("car1");
+  car1.addEventListener('click', function(){
+    navigator.clipboard.writeText("[1, 2, 3]");
+  })
+  car1.addEventListener('mouseover', function(){
+    car1.children[0].fill = '#ff0000';
+    car1.children[0].fill = '#ff0000';
+    console.log(car1.children[0]);
+    console.log("Over");
+  })
+  car1.addEventListener('mouseleave', function(){
+    car1.style.color = '#000000';
+    console.log("Leave");
+  })
+</script>
+</html>

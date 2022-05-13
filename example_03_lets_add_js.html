@@ -7,19 +7,14 @@
   <defs>
     <polygon id="car" class="car" points="16,0 -16,-16 -8,0 -16,16"/>
   </defs>
-  <style>
-    #car {
-      fill:#800000;
-    }
-  </style>
   <g>
     
+    <!-- grid -->
     <line x1="0" y1="0" x2="200" y2="0" stroke="grey"></line>
     <line x1="0" y1="50" x2="200" y2="50" stroke="grey"></line>
     <line x1="0" y1="100" x2="200" y2="100" stroke="grey"></line>
     <line x1="0" y1="150" x2="200" y2="150" stroke="grey"></line>
     <line x1="0" y1="200" x2="200" y2="200" stroke="grey"></line>
-    
     
     <line x1="0" y1="0" x2="0" y2="200" stroke="grey"></line>
     <line x1="50" y1="0" x2="50" y2="200" stroke="grey"></line>
@@ -40,54 +35,33 @@
 </svg>
 
 <script>
-  console.log("abc");
   var carmap = document.getElementById("carmap");
-  // WIP
-  // This DOES change the color of car 1 (carmap.children[0].children[0]...
-  // but it  does not show?!?
-  /*
-  carmap.addEventListener('mouseover', function(){
-    console.log(carmap.children[0].children[0]);
-    carmap.children[0].children[0].style.color = 'black';
-  })
-  carmap.addEventListener('mouseout', function(){
-    carmap.children[0].children[0].style = 'color: red';
-
-    // style = 'color: red';
-    // stlye.color = 'red';  // these are equivalent
-  })
-  carmap.addEventListener('click', function(){
-    navigator.clipboard.writeText("tada");
-  })
-
-  carmap.children[0].children[0].addEventListener('click', function(){
-    navigator.clipboard.writeText("abc");
-  })
-  carmap.children[0].children[0].addEventListener('click', function(){
-    navigator.clipboard.writeText("123");
-  })
-  */
 
   var car1 = document.getElementById("car1");
   car1.addEventListener('click', function(){
     navigator.clipboard.writeText("[1, 2, 3]");
   })
   car1.addEventListener('mouseover', function(){
-    car1.style.color = '#ff0000';
+    car1.style.fill = '#41a6f6';
+    console.log(car1.children[0]);
     console.log("Over");
   })
   car1.addEventListener('mouseleave', function(){
-    car1.style.color = '#000000';
-    console.log("Out");
+    car1.style.fill = '#1a1c2c';
+    console.log(car1.children[0]);
+    console.log("Over");
+  })
+  car1.addEventListener('mousedown', function(){
+    car1.style.fill = '#ef7d57';
+    console.log(car1.children[0]);
+    console.log("Over");
+  })
+  car1.addEventListener('mouseup', function(){
+    car1.style.fill = '#41a6f6';
+    console.log(car1.children[0]);
+    console.log("Over");
   })
 
-  var car2 = document.getElementById("car2");
-  car2.addEventListener('click', function(){
-    navigator.clipboard.writeText("[4, 5, 6]");
-  })
- 
- 
-  console.log("ugh");
 
   // also see:
   // https://stackoverflow.com/questions/2753732/  to access elements async

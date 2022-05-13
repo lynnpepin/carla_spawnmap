@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<title>SVG Example</title>
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<svg width="300" height="300" viewBox="0 0 300 300" zoomAndPan="disable"
+     xmlns="http://www.w3.org/2000/svg"  xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <g>
+      <style>
+        .cararrow {
+          font: bold 32px sans-serif;
+          transform: translateX(-16px) translateY(10px);
+         }
+      </style>
+      <circle cx='100' cy='100' r='10'></circle>
+      <circle cx='50' cy='50' r='10'></circle>
+      <line x1="50" y1="50" x2="100" y2="50" stroke="black"></line>
+      <line x1="50" y1="50" x2="50" y2="100" stroke="black"></line>
+      <line x1="50" y1="100" x2="100" y2="100" stroke="black"></line>
+      <line x1="100" y1="50" x2="100" y2="100" stroke="black"></line>
+      
+      <text x="50" y="100" class="cararrow">➣</text>
+      
+      <text x="50" y="150" class="cararrow" rotate="-45">➣</text>
+    </g>
+    <!-- ➤ ➣ -->
+</svg>
+
+We have some circles and lines on the page.
+
+We center an emoji ➤ at (50,100). It works by setting x=50, y=100, and correcting for
+the alignment using CSS `transform:`.
+</html>

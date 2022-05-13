@@ -1,7 +1,8 @@
 <!DOCTYPE html>
+<!-- TODO! Turn off CORS so this works on Firefox. -->
 <title>SVG Example</title>
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
-<svg width="300" height="300" viewBox="0 0 300 300" zoomAndPan="disable"
+<svg width="700" height="700" viewBox="0 0 700 700" zoomAndPan="disable"
      xmlns="http://www.w3.org/2000/svg"  xmlns:xlink="http://www.w3.org/1999/xlink"
      id="carmap">
   <defs>
@@ -32,11 +33,18 @@
       <g id="car2" transform="translate(100,100) rotate(0) scale(.5)">
         <use href="#car">
       </g>
+
+      <g id="car_copied" transform="translate(120.27010345458984, 48.76090621948242) rotate( -0.0539550743997097) scale(.5)"><use href="#car"></use></g>
+      <!-- Why does this one work? -->
     </g>
-  <!-- ➤ ➣ -->
 </svg>
 
-<script>
+
+<script type="module">
+  import { town06_csv } from './raw_spawn_data.js';
+  import { parse } from './escsv.js'
+  var town06_spawnpoints = parse(town06_csv);
+
   var carmap = document.getElementById("carmap");
 
   function shades(self, color) {
@@ -47,8 +55,38 @@
     return function () { navigator.clipboard.writeText(data); }
   }
 
+  // 1. Load CSV
+  var sp = parse(town06_csv);
+
+  // 2. Add cars per CSV
+
   var cars = document.getElementById("cars");
 
+  //for (let ii = 0; ii < sp.length; ii++) {
+  for (let ii = 1; ii < 100; ii++) {
+    var car = document.createElementNS("https://www.w3.org/2000/svg", 'g');
+    // TODO: Put x, y, rotation into this
+    car.setAttribute("id",`car${ii}`);
+    car.setAttribute("transform",`translate(${sp[ii][0]},${sp[ii][1]}) rotate(${sp[ii][4]}) scale(.5)`);
+
+    var use_car = document.createElementNS("https://www.w3.org/2000/svg", 'use');
+    use_car.setAttribute("href", "#car");
+    car.appendChild(use_car);
+    cars.appendChild(car);
+
+
+    /*
+    car.addEventListener('mouseover',  shades(car, '#3b5dc9'))
+    car.addEventListener('mouseleave', shades(car, '#1a1c2c'))
+    car.addEventListener('mousedown',  shades(car, '#ef7d57'))
+    car.addEventListener('mouseup',    shades(car, '#3b5dc9'))
+    car.addEventListener('click',      dotext(car, coords[ii])) // todo
+    */
+  }
+
+
+  // 3. The rest
+  /*
   var coords = [
     'dummytext1',
     'dummytext2'
@@ -62,11 +100,15 @@
     car.addEventListener('mouseup',    shades(car, '#3b5dc9'))
     car.addEventListener('click',      dotext(car, coords[ii])) // todo
   }
+  */
 
   /* TODO:
    * 1. Place cars per CSV. See https://github.com/evanplaice/jquery-csv/
    * 2. Copy data per CSV
    * 3. Add road data  
+   * 4. Cleaner export-spawnpoints script.
+   *    Export all the points and make all the maps.
+   * 5. Add option to choose a CSV?
 
   // also see:
   // https://stackoverflow.com/questions/2753732/  to access elements async

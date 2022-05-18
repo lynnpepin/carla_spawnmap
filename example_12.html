@@ -23,6 +23,8 @@
    * 
    * Sorry to any future maintainers. This is my first foray into webdev,
    * and I don't want to use many dependencies.
+   *
+   * Protip: Grok this generated SVG by using dev-tools in browser.
    */
   svg.setAttribute("width", "1200");
   svg.setAttribute("height", "800");
@@ -67,106 +69,124 @@
     grid_g.appendChild(v_line);
   }
 
-  // Let's add the origin lines too
-  
+  // Let's add dark origin lines too.
   var oh_line = document.createElementNS("http://www.w3.org/2000/svg", 'line');
   var ov_line = document.createElementNS("http://www.w3.org/2000/svg", 'line');
   oh_line.setAttribute("x1", "0");
   oh_line.setAttribute("x2", "2000");
   oh_line.setAttribute("y1", `${shift_y}`);
   oh_line.setAttribute("y2", `${shift_y}`);
-  oh_line.setAttribute("stroke","#29366f");
+  oh_line.setAttribute("stroke","#080008");
 
   ov_line.setAttribute("x1", `${shift_x}`);
   ov_line.setAttribute("x2", `${shift_x}`);
   ov_line.setAttribute("y1", "0");
   ov_line.setAttribute("y2", "2000");
-  ov_line.setAttribute("stroke","#29366f");
+  ov_line.setAttribute("stroke","#080008");
   map_g.appendChild(oh_line);
   map_g.appendChild(ov_line);
   
 
-  // Now add these groups together, and then to the SVG
+  // Add the cars grup and the grid group to the map grup...
   map_g.appendChild(cars_g);
   map_g.appendChild(grid_g);
+  // ... and add the map group to the svg...
   svg.appendChild(map_g);
-  // and finally, the svg to the doc
+  // ... and finally, the svg to the page!
   container.appendChild(svg);
   document.body.appendChild(container);
 
+
   //// Functions used with listeners
-  // Shades sets the color of something
+  // Shades sets the color, e.g. on mouseover
   function shades(self, color) {
     return function () {self.style.fill = color}
   }
 
-  // dotext attaches data to a car
+  // dotext attaches data to a car for copying.
   function dotext(self, data) {
     return function () { navigator.clipboard.writeText(data); }
   }
+  
+  /* These are higher-order functions.
+   * E.g. dotext(self, data) returns a new function that writes 'data' to clipboard.
+   * E.g. dotext(self, "abc") returns another function, 
+   *      which is function () { navigator.clipboard.writeText("abc"); }
+   * We use this with event listeners to create several hundred slightly different
+   * functions. No idea if this is idiomatic in JavaScript or not! Sorry lol
+   */
 
   //// Add cars!
   // 1. Load CSV data into arrays
   var sp = parse(town06_csv);
   
-  // 2. Add cars
+  // 2. Add all the cars.
   for (let ii = 0; ii < sp.length; ii++) {
-    // Create a group to hold our car
-    var car = document.createElementNS("http://www.w3.org/2000/svg", 'g');
-
-    // get values out
-
+    // Coordinate data
     var x = sp[ii][0];
     var y = sp[ii][1]; // no -y transform actually needed!
     var z = sp[ii][2];
     var pitch = sp[ii][3];
     var yaw = sp[ii][4];
     var roll = sp[ii][5];
-
+    
+    // Plot with shifted origin.
     var x_plot = parseFloat(x) + shift_x;
     var y_plot = -parseFloat(y) + shift_y;
-
+    
+    // We create a group to hold our one car in the SVG.
+    // We use this group so we can apply rotations.
+    var car = document.createElementNS("http://www.w3.org/2000/svg", 'g');
     car.setAttribute("id",`car${ii}`);
     car.setAttribute(
       "transform",`
       translate(${x_plot},${y_plot}) rotate(${yaw}) scale(.5)`
-    ); // -y because of the transform
+    ); 
     
-    // add nested 'use'
+    // We need to 'use' the previously defined 'car' polygon.
     var use_car = document.createElementNS("http://www.w3.org/2000/svg", 'use');
     use_car.setAttribute("href", "#car");
-    // Add to DOM
+    // Add our new car to the cars group.
     car.appendChild(use_car);
     cars_g.appendChild(car);
     
-    // TODO add listeners, data
+    // These listeners change the car color by mouse context
     car.addEventListener('mouseover',  shades(car, '#3b5dc9'))
     car.addEventListener('mouseleave', shades(car, '#1a1c2c'))
     car.addEventListener('mousedown',  shades(car, '#ef7d57'))
     car.addEventListener('mouseup',    shades(car, '#3b5dc9'))
 
-    // set up data string
+    // Set up the string to be copied on click.
     x = parseFloat(x).toFixed(3);
     y = parseFloat(y).toFixed(3);
     z = parseFloat(z).toFixed(3);
     pitch = parseFloat(pitch).toFixed(3);
     yaw = parseFloat(yaw).toFixed(3);
     roll = parseFloat(roll).toFixed(3);
+    
+    // carsdata is copied on click.
     var carsdata = `[${x}, ${y}, ${z}, ${pitch}, ${yaw}, ${roll}]`;
+    /*
+    var carsdata = `carla.Transform(
+    carla.Location(${x}, ${y}, ${z}),
+    carla.Rotation(${pitch}, ${yaw}, ${roll}))
+    `
+    */ //python-ready transform. 
+    
+    // Clicking the car will run the function dotext(car, carsdata).
     car.addEventListener('click',      dotext(car, carsdata));
   }
   
 
   /* TODO:
    * 1. Add road data
-   * 2. Translate canvas
-   * 3. Add all towns (and cleaner python script). Add option to choose town.
-   * 4. Cleaner export-spawnpoints script..
+   * 2. Add all towns (and cleaner python script). Add option to choose town.
+   * 3. Cleaner export-spawnpoints script.
+  */
 
 
   // also see:
   // http://stackoverflow.com/questions/2753732/  to access elements async
-  */
 </script>
 
 </html>
